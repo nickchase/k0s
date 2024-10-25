@@ -4,21 +4,25 @@
 
 ## Prerequisites
 
-The cluster must be running at least one worker node and control plane on Linux. You can use Windows to run additional worker nodes.
+The cluster must be running at least one worker node and control plane on Linux, but you can use Windows to run additional worker nodes.
+
+The Windows system must follow the overall (k0s system requirements)[system-requirements.md]. You will also need to install Mirantis Container Runtime on the Windows node(s), as it is required for the initial Calico set up).
+
+**TODO:** Instructions for installing MCR
 
 ## Run k0s
 
+**TODO:** Instructions for downloading k0s.exe
+
 **Note**: The k0s.exe supervises kubelet.exe and kube-proxy.exe.
 
-During the first run, the calico install script is created as `C:\bootstrap.ps1`. This bootstrap script downloads the calico binaries, builds pause container and sets up vSwitch settings.
+During the first run, the calico install script is created as `C:\bootstrap.ps1`. This bootstrap script downloads the Calico binaries, builds the pause container and sets up the vSwitch settings.
 
-Install Mirantis Container Runtime on the Windows node(s), as it is required for the initial Calico set up).
+Initiate the Cluster control with the correct config:
 
 ```shell
 k0s worker --cri-socket=remote:npipe:////./pipe/containerd-containerd --cidr-range=<cidr_range> --cluster-dns=<clusterdns> --api-server=<k0s api> <token>
 ```
-
-You must initiate the Cluster control with the correct config.
 
 ## Configuration
 

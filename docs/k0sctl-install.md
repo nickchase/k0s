@@ -1,28 +1,30 @@
 # Install using k0sctl
 
-k0sctl is a command-line tool for bootstrapping and managing k0s clusters. k0sctl connects to the provided hosts using SSH and gathers information on the hosts, with which it forms a cluster by configuring the hosts, deploying k0s, and then connecting the k0s nodes together.
+While the `k0s install` command can easily create a running k0s cluster, it's mostly to get you started so you can see what k0s is all about. For production environments, you're going to want to use k0sctl.
+
+k0sctl is a command-line tool for bootstrapping and managing k0s clusters. It connects to the provided IP addresses using SSH and gathers information on the hosts, with which it forms a cluster by configuring the hosts, deploying k0s, and then connecting the k0s nodes together.
 
 ![k0sctl deployment](img/k0sctl_deployment.png)
 
-With k0sctl, you can create multi-node clusters in a manner that is automatic and easily repeatable. This method is recommended for production cluster installation.
+Because it's based on Infrastructure as Code (IaC), k0sctl lets you create multi-node clusters in a manner that is automatic and easily repeatable. That's why we recommend it for production cluster installation. 
 
-**Note**: The k0sctl install method is necessary for automatic upgrade.
+In fact, if you want to use k0s' automatic upgrade function, you will need to use the k0sctl install method.
+
+Let's look at how it works.
 
 ## Prerequisites
 
-You can execute k0sctl on any system that supports the Go language. Pre-compiled k0sctl binaries are available on the [k0sctl releases page](https://github.com/k0sproject/k0sctl)).
-
-**Note**: For target host prerequisites information, refer to the [k0s System Requirements](system-requirements.md).
+You can execute k0sctl on any system that meets the [k0s System Requirements](system-requirements.md) and the Go language. 
 
 ## Install k0s
 
 ### 1. Install k0sctl tool
 
-k0sctl is a single binary, the instructions for downloading and installing of which are available in the [k0sctl github repository](https://github.com/k0sproject/k0sctl#installation).
+You can download k0sctl as a single binary from the [k0sctl github repository](https://github.com/k0sproject/k0sctl#installation).
 
 ### 2. Configure the cluster
 
-1. Run the following command to create a k0sctl configuration file:
+1. Start by creating a k0sctl configuration file:
 
     ```shell
     k0sctl init > k0sctl.yaml
@@ -49,7 +51,7 @@ k0sctl is a single binary, the instructions for downloading and installing of wh
           keyPath: ~/.ssh/id_rsa
     ```
 
-2. Provide each host with a valid IP address that is reachable by k0sctl, and the connection details for an SSH connection.
+2. Add `controller` and `worker` entries for each node in the cluster, making sure to provide each host with a valid IP address that is reachable by k0sctl, as well as the connection details for an SSH connection.
 
  **Note**: Refer to the [k0sctl documentation](https://github.com/k0sproject/k0sctl#configuration-file-spec-fields) for k0sctl configuration specifications.
 
@@ -110,7 +112,7 @@ INFO      k0sctl kubeconfig
 
 ### 4. Access the cluster
 
-To access your k0s cluster, use k0sctl to generate a `kubeconfig` for the purpose.
+To access your k0s cluster, use k0sctl to generate a `kubeconfig` file:
 
 ```shell
 k0sctl kubeconfig > kubeconfig
@@ -119,7 +121,7 @@ k0sctl kubeconfig > kubeconfig
 With the `kubeconfig`, you can access your cluster using either kubectl or [Lens](https://k8slens.dev/).
 
 ```shell
-kubectl get pods --kubeconfig kubeconfig -A
+kubectl --kubeconfig kubeconfig -A get pods
 ```
 
 ```shell
@@ -134,8 +136,8 @@ kube-system   metrics-server-6fbcd86f7b-5frtn            1/1     Running   0    
 
 ## Known limitations
 
-* k0sctl does not perform any discovery of hosts, and thus it only operates on the hosts listed in the provided configuration.
-* k0sctl can only add more nodes to the cluster. It cannot remove existing nodes.
+* k0sctl does not perform any discovery of hosts; it only operates on the hosts listed in the provided configuration.
+* k0sctl can only add more nodes to the cluster. Use kubectl to remove existing [controller](remove_controller.md) or [worker nodes](remove_worker.md).
 
 ## Next Steps
 

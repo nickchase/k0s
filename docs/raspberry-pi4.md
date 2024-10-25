@@ -3,8 +3,8 @@
 ## Prerequisites
 
 This guide assumes that you use a [Raspberry Pi 4 Model B] computer and a
-sufficiently large SD card of at least 32 GB. We will be using [Ubuntu Linux]
-for this guide, although k0s should run quite fine on other 64-bit Linux
+sufficiently large SD card (at least 32 GB). We will be using [Ubuntu Linux]
+for this guide, but k0s should run fine on other 64-bit Linux
 distributions for the Raspberry Pi as well. Please [file a Bug] if you encounter
 any obstacles.
 
@@ -14,7 +14,7 @@ any obstacles.
 
 ## Set up the system
 
-### Prepare SD card and boot up the Raspberry Pi
+### 1. Prepare the SD card and boot up the Raspberry Pi
 
 Install [Ubuntu Server 22.04.1 LTS 64-bit for Raspberry Pi][ubuntu-dl]. Ubuntu
 provides a [step by step guide][ubuntu-pi] for the installation process. They
@@ -33,10 +33,11 @@ dd if=ubuntu-22.04.1-preinstalled-server-arm64+raspi.img of=/dev/mmcblk0 bs=4M s
 ```
 
 **Note**: The manual process is more prone to accidental data loss than the
-guided one via Raspberry Pi Imager. Be sure to choose the correct device names.
-The previous content of the SD card will be wiped. Moreover, the partition
+guided process using Raspberry Pi Imager. Be sure to choose the correct device names.
+
+The previous content of the SD card will be wiped. Also, the partition
 written to the SD card needs to be resized to make the full capacity of the card
-available to Ubuntu. This can be achieved, for example, in this way:
+available to Ubuntu. For example:
 
 ```console
 growpart /dev/mmcblk0 2
@@ -45,12 +46,11 @@ resize2fs /dev/mmcblk0p2
 
 Ubuntu uses [cloud-init] to allow for automated customizations of the system
 configuration. The cloud-init configuration files are located on the boot
-partition of the SD card. You can mount that partition and modify those, e.g. to
-provision network configuration, users, authorized SSH keys, additional packages
-and also an automatic installation of k0s.
+partition of the SD card. You can mount that partition and modify them, for example to
+provision network configuration, users, authorized SSH keys, additional packages--or an automatic installation of k0s.
 
 After you have prepared the SD card, plug it into the Raspberry Pi and boot it
-up. Once cloud-init finished bootstrapping the system, the default login
+up. Once cloud-init finishes bootstrapping the system, the default login
 credentials are set to user `ubuntu` with password `ubuntu` (which you will be
 prompted to change on first login).
 
@@ -60,7 +60,7 @@ prompted to change on first login).
 [2204-dl]: https://ubuntu.com/download/raspberry-pi/thank-you?version=22.04.1&architecture=server-arm64+raspi
 [cloud-init]: https://cloud-init.io/
 
-### Review network configurations
+### 2. Review network configurations
 
 **Note**: For network configuration purposes, this documentation assumes that all
 of your computers are connected on the same subnet.
@@ -77,13 +77,12 @@ via cloud-init, please refer to [their documentation][cloud-init-network].
 [Ubuntu Server Networking Configuration]: https://ubuntu.com/server/docs/network-configuration
 [cloud-init-network]: https://cloudinit.readthedocs.io/en/latest/topics/network-config-format-v2.html#examples
 
-### (Optional) Provision SSH keys
+### 3. (Optional) Provision SSH keys
 
 Ubuntu Server deploys and enables [OpenSSH](https://www.openssh.com/) via
-cloud-init by default. Confirm, though, that for whichever user you will deploy
-the cluster with on the build system, their SSH Key is [copied to each node's
-root user][copy-ssh-key]. Before you start, the configuration should be such
-that the current user can run:
+cloud-init by default. For the user with which you will deploy
+the cluster on the build system, [copied the SSH key to each node's
+root user][copy-ssh-key]. The SSH keys are properly configured if the current user can run:
 
 ```shell
 ssh root@${HOST}
@@ -93,7 +92,7 @@ Where `${HOST}` is any node and the login can succeed with no further prompts.
 
 [copy-ssh-key]: https://www.cyberciti.biz/faq/use-ssh-copy-id-with-an-openssh-server-listing-on-a-different-port/
 
-### (Optional) Create a swap file
+### 4. (Optional) Create a swap file
 
 While having a swap file is _technically optional_, it can help to ease memory
 pressure when running memory intensive workloads or on Raspberry Pis with less
@@ -119,7 +118,7 @@ than 8 GB of RAM.
     /swapfile         none           swap sw       0 0
     ```
 
-## Download k0s
+## Download and install k0s
 
 Download a [k0s release](https://github.com/k0sproject/k0s/releases/latest). For
 example:
@@ -145,9 +144,8 @@ ubuntu@ubuntu:~$ k0s version
 v{{{ extra.k8s_version }}}+k0s.0
 ```
 
-To check if k0s's [system requirements](system-requirements.md) and [external
-runtime dependencies](external-runtime-deps.md) are fulfilled by your current
-setup, you can invoke `k0s sysinfo`:
+To check if the current setup fulfills k0s's [system requirements](system-requirements.md) and [external
+runtime dependencies](external-runtime-deps.md) run `k0s sysinfo`:
 
 ```console
 ubuntu@ubuntu:~$ k0s sysinfo
@@ -290,7 +288,7 @@ Aug 18 09:56:04 ubuntu k0s[2720]: 2022/08/18 09:56:04 [INFO] encoded CSR
 Aug 18 09:56:04 ubuntu k0s[2720]: 2022/08/18 09:56:04 [INFO] signed certificate with serial number 336800507542010809697469355930007636411790073226
 ```
 
-When the cluster is up, try to have a look:
+When the cluster is up, have a look:
 
 ```console
 ubuntu@ubuntu:~$ sudo k0s kc get nodes -owide
@@ -499,7 +497,7 @@ users:
     client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBdHN5TkgzR25tM2F5UExrb1lNRzNxNkxBQTMrRWVsOEJQbXVSN1ZDZGJyRmhqSHJjClpzQXkvNFJ4bHJZOFk3T00vSlJKN3hTNlBGKzIzOUZValpCVVFjT0lpQlVMb3laQUI4MlpWVmtueWtTTGZxMXQKaG9TcnZDcGVwdHNBSUMxMlNubmExd01wUTZVVDlGWXBNbmZHYTc4V0czM2I0UHViZE9SN1hnMEhLUmVpTWptUwpWUmc2c2NKVGZCYWEzTEljOWtMUTg2Nk5ZYzJ2TCtuMnB5RGlUSndMc0t4QldQV1BWeHVtNjJKbGlnT3daYk5zCm9OS1V0QjJ0dTdRVzFSNWxNTGs3dHljMDJiVXdOOWFlYkY3TXZ6OXpLOEVGdTEvYngra01URWNzNkJKeDloRlcKbEZnN2Z1ZzJ0SDF6UnhsMDZGNmRkWEkrb3hWUmhIb1BYWk9Sd1FJREFRQUJBb0lCQUFpYytzbFFnYVZCb29SWgo5UjBhQTUyQ3ZhbHNpTUY3V0lPb2JlZlF0SnBTb1ZZTk0vVmplUU94S2VrQURUaGxiVzg1VFlLR1o0QVF3bjBwClQrS2J1bHllNmYvL2ZkemlJSUk5bmN2M3QzaEFZcEpGZWJPczdLcWhGSFNvUFFsSEd4dkhRaGgvZmFKQ1ZQNWUKVVBLZjBpbWhoMWtrUlFnRTB2NWZCYkVZekEyVGl4bThJSGtQUkdmZWN4WmF1VHpBS2VLR0hjTFpDem8xRHhlSgp3bHpEUW9YWDdHQnY5MGxqR1pndENXcFEyRUxaZ1NwdW0rZ0crekg1WFNXZXgwMzJ4d0NhbkdDdGcyRmxHd2V2Ck9PaG8zSjNrRWVJR1MzSzFJY24rcU9hMjRGZmgvcmRsWXFSdStWeEZ4ZkZqWGxaUjdjZkF4Mnc1Z3NmWm9CRXIKUE1oMTdVRUNnWUVBejZiTDc4RWsvZU1jczF6aWdaVVpZcE5qa2FuWHlsS3NUUWM1dU1pRmNORFdObFkxdlQzVQprOHE5cHVLbnBZRVlTTGVVTS9tSWk5TVp6bmZjSmJSL0hJSG9YVjFMQVJ2blQ0djN3T0JsaDc5ajdKUjBpOW1OClYrR0Q1SlNPUmZCVmYxVlJHRXN6d3ZhOVJsS2lMZ0JVM2tKeWN2Q09jYm5aeFltSXRrbDhDbXNDZ1lFQTRWeG4KZTY2QURIYmR3T0plbEFSKytkVHh5eVYyRjY1SEZDNldPQVh2RVRucGRudnRRUUprWWhNYzM1Y2gvMldmZDBWYQpZb3lGZE9kRThKZSsvcWxuS1pBc3BHRC9yZHp2VmFteHQ4WXdrQXU5Q1diZWw2VENPYkZOQ2hjK1NUbmRqN0duCmlSUHprM1JYMnBEVi9OaW5FVFA0TEJnTHJQYkxlSVAwSzZ4bjk0TUNnWUVBeXZGMmNVendUVjRRNTgrSTVDS0gKVzhzMnpkOFRzbjVZUFRRcG1zb0hlTG55RWNyeDNKRTRXSFVXSTZ0ek01TFczQUxuU21DL3JnQlVRWER0Yk1CYQpWczh6L1VPM2tVN25JOXhrK0ZHWGlUTnBnb2VZM0RGMExZYVBNL0JvbUR3S0kxZUwyVlZ1TWthWnQ4ZjlEejV0CnM0ZDNlWlJYY3hpem1KY1JVUzdDbHg4Q2dZQk45Vmc2K2RlRCtFNm4zZWNYenlKWnJHZGtmZllISlJ1amlLWWcKaFRUNVFZNVlsWEF5Yi9CbjJQTEJDaGdSc0lia2pKSkN5eGVUcERrOS9WQnQ2ZzRzMjVvRjF5UTdjZFU5VGZHVApnRFRtYjVrYU9vSy85SmZYdTFUS0s5WTVJSkpibGZvOXVqQWxqemFnL2o5NE16NC8vamxZajR6aWJaRmZoRTRnCkdZanhud0tCZ0U1cFIwMlVCa1hYL3IvdjRqck52enNDSjR5V3U2aWtpem00UmJKUXJVdEVNd1Y3a2JjNEs0VFIKM2s1blo1M1J4OGhjYTlMbXREcDJIRWo2MlBpL2pMR0JTN0NhOCtQcStxNjZwWWFZTDAwWnc4UGI3OVMrUmpzQQpONkNuQWg1dDFYeDhVMTIvWm9JcjBpOWZDaERuNlBqVEM0MVh5M1EwWWd6TW5jYXMyNVBiCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
 ```
 
-Using the above kubeconfig, you can now access and use the cluster:
+Using the kubeconfig, you can now access and use the cluster:
 
 ```console
 ubuntu@ubuntu:~$ KUBECONFIG=/path/to/kubeconfig kubectl get nodes,deployments,pods -owide -A

@@ -2,7 +2,7 @@
 
 You can install k0s in an environment with restricted Internet access. Airgap installation requires an image bundle, which contains all the needed container images. There are two options to get the image bundle:
 
-- Use a ready-made image bundle, which is created for each k0s release. It can be downloaded from the [releases page](https://github.com/k0sproject/k0s/releases/latest).
+- Use a ready-made image bundle, which is created for each k0s release. You can download it from the [releases page](https://github.com/k0sproject/k0s/releases/latest).
 - Create your own image bundle. In this case, you can easily customize the bundle to also include container images, which are not used by default in k0s.
 
 ## Prerequisites
@@ -21,9 +21,9 @@ In order to create your own image bundle, you need:
 
 k0s/containerd uses OCI (Open Container Initiative) bundles for airgap installation. OCI bundles must be uncompressed. As OCI bundles are built specifically for each architecture, create an OCI bundle that uses the same processor architecture (x86-64, ARM64, ARMv7) as on the target system.
 
-k0s offers two methods for creating OCI bundles, one using Docker and the other using a previously set up k0s worker.
+k0s offers two methods for creating OCI bundles, one using Docker and the other using an existing k0s worker.
 
-**Note:** When importing the image bundle k0s uses containerd "loose" [platform matching](https://pkg.go.dev/github.com/containerd/containerd/platforms#Only). For arm/v8, it will also match arm/v7, arm/v6 and arm/v5. This means that your bundle can contain multi arch images and the import will be done using platform compatibility.
+**Note:** When importing the image bundle, k0s uses containerd "loose" [platform matching](https://pkg.go.dev/github.com/containerd/containerd/platforms#Only). For arm/v8, it will also match arm/v7, arm/v6 and arm/v5. This means that your bundle can contain multi arch images and the import will be done using platform compatibility.
 
 ### Docker
 
@@ -39,7 +39,7 @@ k0s offers two methods for creating OCI bundles, one using Docker and the other 
    docker image save $(k0s airgap list-images | xargs) -o bundle_file
    ```
 
-### Previously set up k0s worker
+### Existing k0s worker
 
 As containerd pulls all the images during the k0s worker normal bootstrap, you can use it to build the OCI bundle with images.
 
@@ -53,7 +53,7 @@ ctr --namespace k8s.io \
 
 ## 2a. Sync the bundle file with the airgapped machine (locally)
 
-Copy the `bundle_file` you created in the previous step or downloaded from the [releases page](https://github.com/k0sproject/k0s/releases/latest) to the target machine into the `images` directory in the k0s data directory. Copy the bundle only to the worker nodes. Controller nodes don't use it.
+Copy the `bundle_file` you created in the previous step or downloaded from the [releases page](https://github.com/k0sproject/k0s/releases/latest) to the target machine into the `images` directory in the k0s data directory. Copy the bundle only to the worker nodes; controller nodes don't use it.
 
 ```shell
 # mkdir -p /var/lib/k0s/images
@@ -105,9 +105,9 @@ spec:
           perm: 0755
 ```
 
-## 3. Ensure pull policy in the k0s.yaml (optional)
+## 3. Ensure pull policy in k0s.yaml (optional)
 
-Use the following `k0s.yaml` to ensure that containerd does not pull images for k0s components from the Internet at any time.
+Use the following `k0s.yaml` file to ensure that containerd does not pull images for k0s components from the Internet at any time.
 
 ```yaml
 apiVersion: k0s.k0sproject.io/v1beta1

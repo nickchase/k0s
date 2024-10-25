@@ -6,7 +6,7 @@ docs_dir: docs/
 repo_name: GitHub
 repo_url: https://github.com/k0sproject/k0s
 copyright:
-  Copyright &copy; 2021 <a href="https://mirantis.com/">Mirantis Inc.</a>
+  Copyright &copy; 2021, 2024 <a href="https://mirantis.com/">Mirantis Inc.</a>
   - All rights reserved.
 edit_uri: ""
 nav:
@@ -26,11 +26,12 @@ nav:
       - External runtime dependencies: external-runtime-deps.md
       - Verifying Signed Binaries: verifying-signs.md
   - Maintenance:
-      - Upgrade: upgrade.md
       - Backup/Restore: backup.md
       - Remove/Replace a controller: remove_controller.md
+      - Remove/Replace a worker: remove_worker.md
+      - Upgrade: upgrade.md
       - Reset (Uninstall): reset.md
-  - Usage:
+  - Configuration and Usage:
       - Configuration Options: configuration.md
       - Dynamic Configuration: dynamic-configuration.md
       - Configuration Validation: configuration-validation.md
@@ -43,6 +44,7 @@ nav:
       - Helm Charts: helm-charts.md
       - Cloud Providers: cloud-providers.md
       - IPv4/IPv6 dual-stack networking: dual-stack.md
+      - Kine with a data store: kine-data-store.md
       - Control Plane High Availability: high-availability.md
       - Node-local load balancing: nllb.md
       - Control plane load balancing: cplb.md
