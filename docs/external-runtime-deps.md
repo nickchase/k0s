@@ -1,12 +1,12 @@
 # External runtime dependencies
 
-k0s is packaged as a single binary, which includes all the needed components.
-All the binaries are statically linked which means that in typical use cases
+k0s is packaged as a single binary, which includes all necessary components.
+All the binaries are statically linked, which means that in typical use cases
 there's an absolute minimum of external runtime dependencies.
 
 However, depending on the node role and cluster configuration, some of the
-underlying components _may_ have specific dependencies, like OS level tools,
-packages and libraries. This page aims to provide a comprehensive overview.
+underlying components _may_ have specific dependencies, such as OS level tools,
+packages and libraries. This page provides a comprehensive overview of these requirements.
 
 The following command checks for known requirements on a host (currently only
 available on Linux):
@@ -26,16 +26,11 @@ for requirements of kube-router and calico.
 
 ### Linux kernel configuration
 
-Needless to say, as k0s operates Kubernetes worker nodes, there's a certain
-number of needed Linux kernel modules and configurations that we need in the
-system. This basically stems from the need to run both containers and also be
-able to set up networking for the containers.
+As k0s operates Kubernetes worker nodes, certain Linux kernel modules and configurations are necessary on the system. These requirements stem from  the need to run containers and to set up networking for those containers.
 
-The needed kernel configuration items are listed below. All of them are
-available in Kernel versions 4.3 and above. If running on older kernels, check
-if the distro in use has backported some features; nevertheless, it might meet
-the requirements. k0s will check the Linux kernel release as part of its
-pre-flight checks and issue a warning if it's below 3.10.
+The necessary kernel configuration items are listed below. All of them are
+available in Kernel versions 4.3 and above. Older kernels might meet the requirements if features have been backported. k0s checks the Linux kernel release as part of its
+pre-flight checks and issues a warning if it's below 3.10.
 
 The list covers ONLY the k0s/kubernetes components’ needs on worker nodes. Your
 own workloads may require more.
@@ -101,7 +96,7 @@ own workloads may require more.
 - [`CONFIG_PROC_FS`](https://github.com/torvalds/linux/blob/v4.3/fs/proc/Kconfig#L1):
   /proc file system support
 
-**Note:** As part of its pre-flight checks, k0s will try to inspect and validate
+**Note:** As part of its pre-flight checks, k0s tries to inspect and validate
 the kernel configuration. In order for that to succeed, the configuration needs
 to be accessible at runtime. There are some typical places that k0s will check.
 A bullet-proof way to ensure the accessibility is to enable
@@ -164,7 +159,7 @@ There are very few external tools that are needed or used.
 
 #### mount/umount
 
-When setting up pods, kubelet will call `mount` binary on the host. Similarly when destroying pods it will call `umount`. `mount` and `umount` are only needed on worker nodes where kubelet runs.
+When setting up pods, kubelet calls the `mount` binary on the host. Similarly, when destroying pods it calls `umount`. `mount` and `umount` are only needed on worker nodes where kubelet runs.
 
 ### External soft dependencies
 
@@ -182,7 +177,7 @@ host, otherwise containerd will [disable][cd-aa] AppArmor support.
 
 #### iptables
 
-iptables may be executed to detect if there are any existing iptables rules and
+`iptables` may be executed to detect if there are any existing iptables rules and
 if those are in legacy of nft mode. If iptables is not found, k0s will assume
 that there are no pre-existing iptables rules.
 
@@ -199,13 +194,12 @@ accounts.
 
 #### modprobe
 
-On k0s worker `modprobe` will be executed to load missing kernel modules if they
+On the k0s worker `modprobe` will be executed to load missing kernel modules if they
 are not detected.
 
 #### id
 
-External `id` will be executed as a fallback if local user lookup fails, in case
-NSS is used.
+If NSS is used, the external `id` will be executed as a fallback if the local user lookup fails.
 
 ## Windows specific
 <!--

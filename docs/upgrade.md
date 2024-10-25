@@ -9,11 +9,16 @@ This tutorial explains two different approaches for k0s upgrade:
 
 ## Upgrade a k0s node locally
 
-If your k0s cluster has been deployed with k0sctl, then k0sctl provides the easiest upgrade method. In that case jump to the next chapter. However, if you have deployed k0s without k0sctl, then follow the upgrade method explained in this chapter.
+If your k0s cluster has been deployed with k0sctl, then k0sctl provides the easiest upgrade method. In that case jump to the next section. However, if you have deployed k0s without k0sctl, then follow the upgrade method explained here.
 
-Before starting the upgrade, consider moving your applications to another node if you want to avoid downtime. This can be done by [draining a worker node](https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/). Remember to uncordon the worker node afterwards to tell Kubernetes that it can resume scheduling new pods onto the node.
+Before starting the upgrade, consider moving your applications to another node if you want to avoid downtime:
 
-The upgrade process is started by stopping the currently running k0s service.
+```shell
+# Remove the containers from the node and cordon it
+k0s kubectl drain --ignore-daemonsets --delete-emptydir-data <worker>
+```
+
+Once the node is empty, start the upgrade by stopping the currently running k0s service.
 
 ```shell
 sudo k0s stop
@@ -31,13 +36,20 @@ Then you can start the service (with the upgraded k0s) and your upgrade is done.
 sudo k0s start
 ```
 
+Make sure to uncordon the node so Kubernetes knows it can schedule pods there:
+
+```shell
+k0s kubectl uncordon <worker>
+```
+
 ## Upgrade a k0s cluster using k0sctl
 
 The upgrading of k0s clusters using k0sctl occurs not through a particular command (there is no `upgrade` sub-command in k0sctl) but by way of the configuration file. The configuration file describes the desired state of the cluster, and when you pass the description to the `k0sctl apply` command a discovery of the current state is performed and the system does whatever is necessary to bring the cluster to the desired state (for example, perform an upgrade).
 
 ### k0sctl cluster upgrade process
 
-The following operations occur during a k0sctl upgrade:
+The following 
+operations occur during a k0sctl upgrade:
 
 1. Upgrade of each controller, one at a time. There is no downtime if multiple controllers are configured.
 
@@ -55,7 +67,7 @@ spec:
     version: {{{ extra.k8s_version }}}+k0s.0
 ```
 
-If you do not specify a version, k0sctl checks online for the latest version and defaults to it.
+If you do not specify a version, k0sctl checks online for the latest version and defaults to it. Finally, apply the changes:
 
 ```shell
 k0sctl apply
