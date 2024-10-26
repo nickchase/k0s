@@ -4,16 +4,16 @@ Defining your extensions as Helm charts is one of two methods you can use to run
 
 k0s supports two methods for deploying applications using Helm charts:
 
-- Use Helm command in runtime to install applications. Refer to the [Helm Quickstart Guide](https://helm.sh/docs/intro/quickstart/) for more information.
-- Insert Helm charts directly into the k0s configuration file, ``k0s.yaml``. This method does not require a separate install of `helm` tool and the charts automatically deploy at the k0s bootstrap phase.
+- Use the Helm command in the runtime to install applications. Refer to the [Helm Quickstart Guide](https://helm.sh/docs/intro/quickstart/) for more information.
+- Insert Helm charts directly into the k0s configuration file, ``k0s.yaml``. This method does not require a separate install of the `helm` tool, and the charts automatically deploy at the k0s bootstrap phase.
 
 ## Helm charts in k0s configuration
 
-Adding Helm charts into the k0s configuration file gives you a declarative way in which to configure the cluster. k0s controller manages the setup of Helm charts that are defined as extensions in the k0s configuration file.
+Adding Helm charts into the k0s configuration file gives you a declarative way in which to configure the cluster. The k0s controller manages the setup of Helm charts that are defined as extensions in the k0s configuration file.
 
 ### Chart install and upgrade options
 
-Charts are processed the same way CLI tool does with following options by default:
+k0s processes charts the same way the CLI tool does with the following options by default:
 
 - `--create-namespace`
 - `--atomic`
@@ -21,7 +21,7 @@ Charts are processed the same way CLI tool does with following options by defaul
 - `--wait`
 - `--wait-for-jobs`
 
-See [Chart configuration](#chart-configuration) below for more details on how to configuring these options.
+See [Chart configuration](#chart-configuration) below for more details on how to configure these options.
 
 ### Repository configuration
 
@@ -30,7 +30,7 @@ See [Chart configuration](#chart-configuration) below for more details on how to
 | name     | _(required)_  | The repository name                                                      |
 | url      | _(required)_  | The repository URL                                                       |
 | insecure | true          | Whether to skip TLS certificate checks when connecting to the repository |
-| caFile   | -             | CA bundle file to use when verifying HTTPS-enabled servers               |
+| caFile   | -             | The CA bundle file to use when verifying HTTPS-enabled servers               |
 | certFile | -             | The TLS certificate file to use for HTTPS client authentication          |
 | keyfile  | -             | The TLS key file to use for HTTPS client authentication                  |
 | username | -             | Username for Basic HTTP authentication                                   |
@@ -41,17 +41,17 @@ See [Chart configuration](#chart-configuration) below for more details on how to
 | Field        | Default value | Description                                                                            |
 |--------------|---------------|----------------------------------------------------------------------------------------|
 | name         | -             | Release name                                                                           |
-| chartname    | -             | chartname in form "repository/chartname" or path to tgz file                           |
-| version      | -             | version to install                                                                     |
-| timeout      | -             | timeout to wait for release install                                                    |
-| values       | -             | yaml as a string, custom chart values                                                  |
-| namespace    | -             | namespace to install chart into                                                        |
-| forceUpgrade | true          | when set to false, disables the use of the "--force" flag when upgrading the the chart |
-| order        | 0             | order to apply manifest. For equal values, alphanum ordering is used                   |
+| chartname    | -             | The chartname in the form "repository/chartname" or path to tgz file                           |
+| version      | -             | The version to install                                                                     |
+| timeout      | -             | The timeout to wait for the release to install                                                    |
+| values       | -             | Custom chart values formatted as a yaml string                                                  |
+| namespace    | -             | The Kubernetes namespace to install the chart into                                                        |
+| forceUpgrade | true          | When set to false, disables the use of the "--force" flag when upgrading the the chart |
+| order        | 0             | The order in which to apply the manifest. For equal values, alphanumeric ordering is used                   |
 
 ## Example
 
-In the example, Prometheus is configured from "stable" Helms chart repository. Add the following to `k0s.yaml` and restart k0s, after which Prometheus should start automatically with k0s.
+In this example, Prometheus is configured from a "stable" Helm chart repository. Add the following to `k0s.yaml` and restart k0s, after which Prometheus should start automatically with k0s.
 
 ```yaml
 spec:
@@ -106,4 +106,4 @@ Example extensions that you can use with Helm charts include:
 
 ## Helm debug logging
 
-Running k0s controller with `--debug=true` enables helm debug logging.
+Running k0s controller with `--debug=true` enables Helm debug logging.

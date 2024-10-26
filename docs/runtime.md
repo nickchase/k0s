@@ -12,7 +12,7 @@ k0s comes bundled with [containerd] as the default Container Runtime Interface (
 
 ## containerd configuration
 
-By default k0s manages the full containerd configuration. User has the option of fully overriding, and thus also managing, the configuration themselves.
+By default k0s manages the full containerd configuration, but you also have the option of fully overriding, and thus also managing, the configuration.
 
 ### User managed containerd configuration
 
@@ -22,9 +22,9 @@ In the default k0s generated configuration there's a "magic" comment telling k0s
 # k0s_managed=true
 ```
 
-If you wish to take over the configuration management remove this line.
+If you wish to take over the configuration management, remove this line.
 
-To make changes to containerd configuration you must first generate a default containerd configuration, with the default values set to `/etc/k0s/containerd.toml`:
+To make changes to the containerd configuration you must first generate a default containerd configuration with default values, saved to `/etc/k0s/containerd.toml`:
 
 ```shell
 containerd config default > /etc/k0s/containerd.toml
@@ -56,11 +56,11 @@ state = "/run/k0s/containerd"
 
 As of 1.27.1, k0s allows dynamic configuration of containerd CRI runtimes. This
 works by k0s creating a special directory in `/etc/k0s/containerd.d/` where
-users can place partial containerd configuration files.
+you can place partial containerd configuration files.
 
-K0s will automatically pick up these files and add them as containerd
+K0s automatically picks up these files and adds them as containerd
 configuration `imports`. If a partial configuration file contains a CRI plugin
-configuration section, k0s will instead treat such a file as a [merge patch] to
+configuration section, k0s instead treats such a file as a [merge patch] to
 k0s's default containerd configuration. This is to mitigate [containerd's
 decision] to replace rather than merge individual plugin configuration sections
 from imported configuration files. However, this behavior [may][containerd#7347]
@@ -68,9 +68,9 @@ from imported configuration files. However, this behavior [may][containerd#7347]
 
 Please note, that in order for drop-ins in `/etc/k0s/containerd.d` to take effect on running configuration, `/etc/k0s/containerd.toml` needs to be k0s managed.
 
-If you change the first magic line (`# k0s_managed=true`) in the `/etc/k0s/containerd.toml` (by accident or on purpose), it automatically becomes "not k0s managed". To make it "k0s managed" again, remove `/etc/k0s/containerd.toml` and restart k0s service on the node, it'll be recreated by k0s.
+If you change the first magic line (`# k0s_managed=true`) in the `/etc/k0s/containerd.toml` (by accident or on purpose), it automatically becomes "not k0s managed". To make it "k0s managed" again, remove `/etc/k0s/containerd.toml` and restart k0s service on the node; it'll be recreated by k0s.
 
-To confirm that drop-ins are applied to running configuration, check the content of `/run/k0s/containerd-cri.toml`, drop-in specific configuration should be present in this file.
+To confirm that drop-ins are applied to the running configuration, check the content of `/run/k0s/containerd-cri.toml`. The drop-in specific configuration should be present in this file.
 
 [merge patch]: https://datatracker.ietf.org/doc/html/rfc7396
 [containerd's decision]: https://github.com/containerd/containerd/pull/3574/commits/24b9e2c1a0a72a7ad302cdce7da3abbc4e6295cb
@@ -79,11 +79,13 @@ To confirm that drop-ins are applied to running configuration, check the content
 
 ### Examples
 
-Following chapters provide some examples how to configure different runtimes for containerd using k0s managed drop-in configurations.
+Following sections provide some examples of how to configure different runtimes for containerd using k0s-managed drop-in configurations.
 
 #### Using gVisor
 
-[gVisor](https://gvisor.dev/docs/) is an application kernel, written in Go, that implements a substantial portion of the Linux system call interface. It provides an additional layer of isolation between running applications and the host operating system.
+[gVisor](https://gvisor.dev/docs/) is an application kernel written in Go and implementing a substantial portion of the Linux system call interface. It provides an additional layer of isolation between running applications and the host operating system.
+
+To use gVisor:
 
 1. Install the needed gVisor binaries into the host.
 
@@ -104,7 +106,7 @@ Following chapters provide some examples how to configure different runtimes for
 
     Refer to the [gVisor install docs](https://gvisor.dev/docs/user_guide/install/) for more information.
 
-2. Prepare the config for `k0s` managed containerd, to utilize gVisor as additional runtime:
+2. Prepare the config for `k0s` managed containerd to utilize gVisor as an additional runtime:
 
     ```shell
     cat <<EOF | sudo tee /etc/k0s/containerd.d/gvisor.toml
@@ -115,13 +117,13 @@ Following chapters provide some examples how to configure different runtimes for
     EOF
     ```
 
-3. Start and join the worker into the cluster, as normal:
+3. Start and join the worker to the cluster, as normal:
 
     ```shell
     k0s worker $token
     ```
 
-4. Register containerd to the Kubernetes side to make gVisor runtime usable for workloads (by default, containerd uses normal runc as the runtime):
+4. Register containerd to Kubernetes to make the gVisor runtime usable for workloads (by default, containerd uses normal runc as the runtime):
 
     ```shell
     cat <<EOF | kubectl apply -f -
@@ -133,7 +135,7 @@ Following chapters provide some examples how to configure different runtimes for
     EOF
     ```
 
-    At this point, you can use gVisor runtime for your workloads:
+    At this point, you can use the gVisor runtime for your workloads:
 
     ```yaml
     apiVersion: v1
@@ -147,7 +149,7 @@ Following chapters provide some examples how to configure different runtimes for
         image: nginx
     ```
 
-5. (Optional) Verify that the created nginx pod is running under gVisor runtime:
+5. (Optional) Verify that the created nginx pod is running under the gVisor runtime:
 
     ```shell
     # kubectl exec nginx-gvisor -- dmesg | grep -i gvisor
@@ -173,15 +175,15 @@ helm install nvidia-gpu-operator -n nvidia-gpu-operator \
   nvidia/gpu-operator
 ```
 
-With this Helm chart values, NVIDIA GPU operator will deploy both driver and toolkit to the GPU nodes and additionally will configure containerd with NVIDIA specific runtime.
+With these Helm chart values, the NVIDIA GPU operator deploys both the driver and toolkit to the GPU nodes and additionally configures containerd with the NVIDIA specific runtime.
 
-**Note** Detailed instruction on how to deploy NVIDIA GPU operator on your k0s cluster is available [here](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html).
+**Note** Detailed instructions on how to deploy the NVIDIA GPU operator on your k0s cluster are available [from Nvidia](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/getting-started.html).
 
 ## Using custom CRI runtimes
 
 **Warning**: You can use your own CRI runtime with k0s (for example, `docker`). However, k0s will not start or manage the runtime, and configuration is solely your responsibility.
 
-Use the option `--cri-socket` to run a k0s worker with a custom CRI runtime. the option takes input in the form of `<type>:<url>` (the only supported type is `remote`).
+Use the option `--cri-socket` to run a k0s worker with a custom CRI runtime. The option takes input in the form of `<type>:<url>`, where <type> must be `remote`).
 
 ### Using Docker as the container runtime
 
@@ -193,20 +195,19 @@ Kubernetes.
 
 #### Configuration
 
-In order to use Docker as the container runtime for k0s, the following steps
-need to be taken:
+In order to use Docker as the container runtime for k0s, take the following steps:
 
-1. Manually install required components.  
+1. Manually install required components. 
   On each `k0s worker` and `k0s controller --enable-worker` node, both
   Docker Engine and cri-dockerd need to be installed manually. Follow the
   official [Docker Engine installation guide][install docker] and [cri-dockerd
   installation instructions][install cri-dockerd].
 
-2. Configure and restart affected k0s nodes.  
-  Once installations are complete, the nodes needs to be restarted with the
+2. Configure and restart the affected k0s nodes. 
+  Once installations are complete, the nodes need to be restarted with the
   `--cri-socket` flag pointing to cri-dockerd's socket, which is typically
-  located at `/var/run/cri-dockerd.sock`. For instance, the commands to start a
-  node would be as follows:
+  located at `/var/run/cri-dockerd.sock`. For example, the commands to start a
+  node would be:
   
       k0s worker --cri-socket=remote:unix:///var/run/cri-dockerd.sock
   
@@ -231,8 +232,7 @@ need to be taken:
 
 In scenarios where Docker is managed via systemd, it is crucial that the
 `cgroupDriver: systemd` setting is included in the Kubelet configuration. It can
-be added to the `workerProfiles` section of the k0s configuration. An example of
-how the k0s configuration might look:
+be added to the `workerProfiles` section of the k0s configuration. For example:
 
 ```yaml
 apiVersion: k0s.k0sproject.io/v1beta1
@@ -249,7 +249,9 @@ spec:
 Note that this is a cluster-wide configuration setting that must be added to
 the k0s controller's configuration rather than directly to the workers, or to
 the cluster configuration if using [dynamic configuration]. See the [worker
-profiles] section of the documentation for more details. When starting workers,
+profiles] section of the documentation for more details. 
+
+When starting workers,
 both the `--profile=systemd-docker-cri` and `--cri-socket` flags are required.
 The profile name, such as `systemd-docker-cri`, is flexible. Alternatively,
 this setting can be applied to the `default` profile, which will apply to all

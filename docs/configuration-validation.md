@@ -1,6 +1,6 @@
 # Configuration validation
 
-k0s command-line interface has the ability to validate config syntax:
+The k0s command-line interface has the ability to validate the configuration syntax:
 
 ```shell
 k0s config validate --config path/to/config/file

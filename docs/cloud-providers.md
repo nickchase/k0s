@@ -1,6 +1,6 @@
 # Cloud providers
 
-K0s supports all [Kubernetes cloud controllers]. However, those must be installed as separate cluster add-ons since k0s builds Kubernetes components in *providerless* mode.
+K0s supports all [Kubernetes cloud controllers]. However, they must be installed as separate cluster add-ons because k0s builds Kubernetes components in *providerless* mode.
 
 [Kubernetes cloud controllers]: https://kubernetes.io/docs/concepts/architecture/cloud-controller/
 

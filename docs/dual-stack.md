@@ -21,8 +21,8 @@ spec:
       IPv6serviceCIDR: fd01::/108
 ```
 
-This configuration will set up all Kubernetes components and kube-router
-accordingly for dual-stack networking.
+This configuration sets up all Kubernetes components and the kube-router
+for dual-stack networking.
 
 ## Using Calico as the CNI provider
 
