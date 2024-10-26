@@ -4,11 +4,10 @@ For clusters that don't have an [externally managed load balancer](high-availabi
 control plane, there is another option to get a highly available control plane called control plane load balancing (CPLB).
 
 CPLB has two features that are independent, but normally will be used together: VRRP Instances, which allows
-automatic assignation of predefined IP addresses using VRRP across control plane nodes. VirtualServers allows to
-do Load Balancing to the other control plane nodes.
+automatic assignment of predefined IP addresses using VRRP across control plane nodes. VirtualServers allows Load Balancing with the other control plane nodes.
 
-This feature is intended to be used for external traffic. This feature is fully compatible with
-[node-local load balancing (NLLB)](nllb.md) which means CPLB can be used for external traffic and NLLB for
+This feature is intended to be used for external traffic. It's fully compatible with
+[node-local load balancing (NLLB)](nllb.md), which means CPLB can be used for external traffic and NLLB for
 internal traffic at the same time.
 
 ## Technical functionality
@@ -16,7 +15,7 @@ internal traffic at the same time.
 The k0s control plane load balancer provides k0s with virtual IPs and TCP
 load Balancing on each controller node. This allows the control plane to
 be highly available using VRRP (Virtual Router Redundancy Protocol) and
-IPVS long as the network infrastructure allows multicast and GARP.
+IPVS as long as the network infrastructure allows multicast and GARP.
 
 [Keepalived](https://www.keepalived.org/) is the only load balancer that is
 supported so far. Currently there are no plans to support other alternatives.
@@ -27,15 +26,15 @@ VRRP, or Virtual Router Redundancy Protocol, is a protocol that allows several
 routers to utilize the same virtual IP address. A VRRP instance refers to a
 specific configuration of this protocol.
 
-Each VRRP instance must have a unique virtualRouterID, at least one IP address,
-one unique password (which is sent in plain text across your network, this is
+Each VRRP instance must have a unique `virtualRouterID`, at least one IP address,
+one unique password (which is sent in plain text across your network and is used
 to prevent accidental conflicts between VRRP instances) and one network
 interface.
 
 Except for the network interface, all the fields of a VRRP instance must have
 the same value on all the control plane nodes.
 
-Usually, users will define multiple VRRP instances when they need k0s to be
+Usually users define multiple VRRP instances when they need k0s to be
 highly available on multiple network interfaces.
 
 ## Enabling in a cluster
@@ -43,12 +42,12 @@ highly available on multiple network interfaces.
 In order to use control plane load balancing, the cluster needs to comply with the
 following:
 
-* K0s isn't running as a [single node](k0s-single-node.md), i.e. it isn't
+* K0s isn't running as a [single node](k0s-single-node.md). In other words, it isn't
   started using the `--single` flag.
-* The cluster should have multiple controller nodes. Technically CPLB also works
+* The cluster has multiple controller nodes. Technically CPLB also works
   with a single controller node, but is only useful in conjunction with a highly
   available control plane.
-* Unique virtualRouterID and authPass for each VRRP Instance in the same broadcast domain.
+* Unique `virtualRouterID` and `authPass` for each VRRP Instance in the same broadcast domain.
   These do not provide any sort of security against ill-intentioned attacks, they are
   safety features to prevent accidental conflicts between VRRP instances in the same
   network segment.
@@ -92,9 +91,9 @@ spec:
               - ipAddress: "<External ip address>"
 ```
 
-Because this is a feature intended to configure the apiserver, CPLB noes not
-support dynamic configuration and in order to make changes you need to restart
-the k0s controllers to make changes.
+Because this is a feature intended to configure the apiserver, CPLB does not
+support dynamic configuration, and in order to make changes you need to restart
+the k0s controllers.
 
 [specapi]: configuration.md#specapi
 
@@ -284,7 +283,7 @@ level=info msg="Tip: To access the cluster you can now fetch the admin kubeconfi
 level=info msg="     k0sctl kubeconfig"
 ```
 
-The cluster with the two nodes should be available by now. Setup the kubeconfig
+The cluster with the two nodes should be available by now. Set up the kubeconfig
 file in order to interact with it:
 
 ```shell
@@ -320,7 +319,7 @@ controller-2
 ```
 
 The cluster is using control plane load balancing and is able to tolerate the
-outage of one controller node. Shutdown the first controller to simulate a
+outage of one controller node. Shut down the first controller to simulate a
 failure condition:
 
 ```console
@@ -348,7 +347,7 @@ TCP  192.168.122.200:6443 rr persistent 360
   -> 192.168.122.185:6443              Route   1      0          0
   -> 192.168.122.87:6443               Route   1      0          0
   -> 192.168.122.122:6443              Route   1      0          0
-````
+```
 
 And the cluster will be working normally:
 

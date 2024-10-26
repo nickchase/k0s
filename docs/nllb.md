@@ -5,7 +5,7 @@ control plane, there is another option to get a highly available control plane,
 at least from within the cluster. K0s calls this "node-local load balancing". In
 contrast to an externally managed load balancer, node-local load balancing takes
 place exclusively on the worker nodes. It does not contribute to making the
-control plane highly available to the outside world (e.g. humans interacting
+control plane highly available to the outside world (for example, humans interacting
 with the cluster using management tools such as [Lens](https://k8slens.dev/) or
 `kubectl`), but rather makes the cluster itself internally resilient to
 controller node outages.

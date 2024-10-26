@@ -2,17 +2,17 @@
 
 `k0s install` does not support environment variables.
 
-Setting environment variables for components used by k0s depends on the used init system. The environment variables set in `k0scontroller` or `k0sworker` service will be inherited by k0s components, such as `etcd`, `containerd`, `konnectivity`, etc.
+Setting environment variables for components used by k0s depends on the init system in use. The environment variables set in the `k0scontroller` or `k0sworker` service will be inherited by k0s components such as `etcd`, `containerd`, `konnectivity`, and so on.
 
-Component specific environment variables can be set in `k0scontroller` or `k0sworker` service. For example: for `CONTAINERD_HTTPS_PROXY`, the prefix `CONTAINERD_` will be stripped and converted to `HTTPS_PROXY` in the `containerd` process.
+Component-specific environment variables can also be set in the `k0scontroller` or `k0sworker` service using prefixes. For example, the `CONTAINERD_HTTPS_PROXY` environment variable will be applied to the `containerd` process, and the prefix `CONTAINERD_` will be stripped, leaving the `HTTPS_PROXY` variable to be used by the `containerd` process.
 
-For those components having env prefix convention such as `ETCD_xxx`, they are handled specially, i.e. the prefix will not be stripped. For example, `ETCD_MAX_WALS` will still be `ETCD_MAX_WALS` in etcd process.
+The exception to this rule is for those variables prefixed with `ETCD_`. These variables are handled specially, and the prefix will not be stripped. For example, `ETCD_MAX_WALS` will still be `ETCD_MAX_WALS` in the etcd process.
 
-The proxy envs `HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY` are always overridden by component specific environment variables, so `ETCD_HTTPS_PROXY` will still be converted to `HTTPS_PROXY` in etcd process.
+That said, the proxy envs `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY` are always overridden by component specific environment variables, so `ETCD_HTTPS_PROXY` will still be converted to `HTTPS_PROXY` in the etcd process.
 
 ## SystemD
 
-Create a drop-in directory and add config file with a desired environment variable:
+To add environment variables to SystemD, create a drop-in directory and add a config file with the desired environment variables:
 
 ```shell
 mkdir -p /etc/systemd/system/k0scontroller.service.d
@@ -24,7 +24,7 @@ EOT
 
 ## OpenRC
 
-Export desired environment variable overriding service configuration in /etc/conf.d directory:
+To add environment variables to OpenRC, export the desired environment variables overriding the service configuration to the /etc/conf.d directory:
 
 ```shell
 echo 'export HTTP_PROXY="192.168.33.10:3128"' > /etc/conf.d/k0scontroller
