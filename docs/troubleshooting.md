@@ -58,7 +58,7 @@ with etcd itself is not fully supported on ARM either.
 
 On ZFS-based systems k0s will fail to start because containerd runs by default in overlayfs mode to manage image layers. This is not compatible with ZFS and requires a custom config of containerd. The following steps should get k0s working on ZFS-based systems:
 
-- check with `$ ctr -a /run/k0s/containerd.sock plugins ls` that the containerd ZFS snapshotter plugin is in `ok` state (should be the case if ZFS kernel modules and ZFS userspace utils are correctly configured):
+1. Use `$ ctr -a /run/k0s/containerd.sock plugins ls` to make sure that the containerd ZFS snapshotter plugin is in the `ok` state. This should be the case if the ZFS kernel modules and the ZFS userspace utils are correctly configured:
 
 ```console
 TYPE                            ID                       PLATFORMS      STATUS    
@@ -67,8 +67,13 @@ io.containerd.snapshotter.v1    zfs                      linux/amd64    ok
 ...
 ```
 
-- create a containerd config according to the [documentation](runtime.md): `$ containerd config default > /etc/k0s/containerd.toml`
-- modify the line in `/etc/k0s/containerd.toml`:
+2. Create a containerd config according to the [documentation](runtime.md): 
+
+```console
+$ containerd config default > /etc/k0s/containerd.toml
+```
+
+3. Modify the line in `/etc/k0s/containerd.toml`:
 
 ```toml
 ...
@@ -86,15 +91,25 @@ to
 ...
 ```
 
-- create a ZFS dataset to be used as snapshot storage at your desired location, e.g. `$ zfs create -o mountpoint=/var/lib/k0s/containerd/io.containerd.snapshotter.v1.zfs rpool/containerd`
-- install k0s as usual, e.g `$ k0s install controller --single -c /etc/k0s/k0s.yaml`
-- containerd should be launched with ZFS support and k0s should initialize the cluster correctly
+4. Create a ZFS dataset to be used as snapshot storage at your desired location, for example: 
+
+```console
+$ zfs create -o mountpoint=/var/lib/k0s/containerd/io.containerd.snapshotter.v1.zfs rpool/containerd
+```
+
+5. Install k0s as usual. For example: 
+
+```console
+$ k0s install controller --single -c /etc/k0s/k0s.yaml
+```
+
+6. containerd should be launched with ZFS support and k0s should initialize the cluster correctly.
 
 ## Pods pending when using cloud providers
 
-Once we enable [cloud provider support](cloud-providers.md) on kubelet on worker nodes, kubelet will automatically add a taint `node.cloudprovider.kubernetes.io/uninitialized` for the node. This tain will prevent normal workloads to be scheduled on the node until the cloud provider controller actually runs second initialization on the node and removes the taint. This means that these nodes are not available for scheduling until the cloud provider controller is actually successfully running on the cluster.
+Once we enable [cloud provider support](cloud-providers.md) on kubelet on worker nodes, kubelet will automatically add a taint `node.cloudprovider.kubernetes.io/uninitialized` for the node. This taint will prevent normal workloads from being scheduled on the node until the cloud provider controller actually runs a second initialization on the node and removes the taint. This means that these nodes are not available for scheduling until the cloud provider controller is actually successfully running on the cluster.
 
-For troubleshooting your specific cloud provider see its documentation.
+For troubleshooting your specific cloud provider, see its documentation.
 
 ## k0s not working with read only `/usr`
 
@@ -124,14 +139,14 @@ With this config you can start your controller as usual. Any workers will need t
 k0s worker --profile coreos [TOKEN]
 ```
 
-## iptables veresion mismatch
+## iptables version mismatch
 
 If the running kernel has firewall rules created using an iptables version
 newer than the version shipped with k0s, the Kubernetes network will [not
 work](https://www.mirantis.com/blog/networking-problems-after-installing-kubernetes-1-25-or-after-upgrading-your-host-os-this-might-be-your-problem).
 
 To solve this, make sure that the iptables version used on host is same version
-as bundled with k0s. The k0s version is found in  `/var/lib/k0s/bin`.
+as the one bundled with k0s. The k0s version is found in `/var/lib/k0s/bin`.
 
 ## Profiling
 
@@ -143,7 +158,7 @@ To keep those symbols use `DEBUG` env variable:
 DEBUG=true make k0s
 ```
 
-Any value not equal to the "false" would work.
+Any value not equal to "false" would work.
 
 To add custom linker flags use `LDFLAGS` variable.
 
@@ -155,7 +170,7 @@ LD_FLAGS="--custom-flag=value" make k0s
 
 With Kubernetes' shift to CRI, Kubelet's method of obtaining container metrics
 through its embedded [cAdvisor] no longer works as it used to. This process
-doesn't go via CRI but directly interacts with the container runtime, which is
+doesn't use CRI but directly interacts with the container runtime, which is
 only natively supported for containerd. K0s automatically manages this for its
 built-in containerd runtime. For custom containerd runtimes, you can use the
 flag `--kubelet-extra-flags=--containerd=/path/to/containerd.sock` when starting
