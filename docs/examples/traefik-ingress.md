@@ -1,6 +1,6 @@
 # Installing Traefik Ingress Controller
 
-You can configure k0s with the [Traefik ingress controller](https://doc.traefik.io/traefik/providers/kubernetes-ingress/), a [MetalLB service loadbalancer](https://metallb.universe.tf/), and deploy the Traefik Dashboard using a service sample. To do this you leverage Helm's extensible bootstrapping functionality to add the correct extensions to the `k0s.yaml` file during cluster configuration.
+You can configure k0s with the [Traefik ingress controller](https://doc.traefik.io/traefik/providers/kubernetes-ingress/), a [MetalLB service loadbalancer](https://metallb.universe.tf/), and deploy the Traefik Dashboard using a `Service` sample. To do this you leverage Helm's extensible bootstrapping functionality to add the correct extensions to the `k0s.yaml` file during cluster configuration.
 
 ## 1. Configure k0s.yaml
 
@@ -68,7 +68,7 @@ replicaset.apps/metallb-1607085578-controller-864c9757f6   1         1         1
 replicaset.apps/traefik-1607085579-77bbc57699              1         1         1       81s
 ```
 
-Take note of the `EXTERNAL-IP` given to the `service/traefik-n` load balancer. In this example, `192.168.0.5` has been assigned and can be used to access services via the Ingress proxy:
+Take note of the `EXTERNAL-IP` given to the `service/traefik-n` load balancer. In this example, `192.168.0.5` has been assigned and can be used to access services via the `Ingress` proxy:
 
 ```shell
 NAME                         TYPE           CLUSTER-IP       EXTERNAL-IP      PORT(S)                      AGE
@@ -123,7 +123,7 @@ With an available and addressable load balancer present on your cluster, now you
 
     ![Traefik Dashboard](../img/traefik-dashboard.png)
 
-3. Create a simple `whoami` Deployment, Service, and [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) manifest:
+3. Create a simple `whoami` `Deployment`, `Service`, and [`Ingress`](https://kubernetes.io/docs/concepts/services-networking/ingress/) manifest:
 
     ```yaml
     apiVersion: apps/v1
@@ -187,7 +187,7 @@ With an available and addressable load balancer present on your cluster, now you
     ingress.networking.k8s.io/whoami-ingress created
     ```
 
-5. Test the ingress and service:
+5. Test the `Ingress` and `Service`:
 
     ```shell
     curl http://192.168.0.5/whoami

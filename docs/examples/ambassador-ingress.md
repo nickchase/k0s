@@ -1,12 +1,12 @@
 # Installing Ambassador API Gateway
 
-You can configure k0s with the [Ambassador API Gateway](https://www.getambassador.io/products/api-gateway/) and a [MetalLB service loadbalancer](https://metallb.universe.tf/). To do this you leverage Helm's extensible bootstrapping functionality to add the correct extensions to the `k0s.yaml` file during cluster configuration.
+You can configure k0s with the [Ambassador API Gateway](https://www.getambassador.io/products/api-gateway/) and a [MetalLB service load balancer](https://metallb.universe.tf/). To do this you leverage Helm's extensible bootstrapping functionality to add the correct extensions to the `k0s.yaml` file during cluster configuration.
 
 Note: Currently Ambassador API Gateway does not support Kubernetes v1.22 or above. See [here](https://github.com/emissary-ingress/emissary/issues/3735#issuecomment-916278895) for details.
 
 ## Use Docker for non-native k0s platforms
 
-With Docker you can run k0s on platforms that the distribution does not natively support (refer to [Run k0s in Docker](../k0s-in-docker.md)). Skip this section if you are on a platform that k0s natively supports.
+With Docker you can [run k0s on platforms that the distribution does not natively support](../k0s-in-docker.md). Skip this section if you are on a platform that k0s natively supports.
 
 As you need to create a custom configuration file to install Ambassador Gateway, you will first need to map that file into the k0s container and to expose the ports Ambassador needs for outside access.
 
@@ -65,7 +65,7 @@ As you need to create a custom configuration file to install Ambassador Gateway,
 
     **Note**: It may be necessary to replace the 172.17.0.2 IP with your local IP address.
 
-    This action adds both Ambassador and MetalLB (required for LoadBalancers) with the corresponding repositories and (minimal) configurations. Be aware that the provided example illustrates the use of your local network and that you will want to provide a range of IPs for MetalLB that are addressable on your LAN to access these services from anywhere on your network.
+    This action adds both Ambassador and MetalLB (required for `LoadBalancer`s) with the corresponding repositories and (minimal) configurations. Be aware that the provided example illustrates the use of your local network and that you will want to provide a range of IPs for MetalLB that are addressable on your LAN to access these services from anywhere on your network.
 
 2. Stop/remove your k0s container:
 
@@ -170,7 +170,7 @@ As you need to create a custom configuration file to install Ambassador Gateway,
     mapping.getambassador.io/petstore created
     ```
 
-3. Validate that the service is running.
+3. Validate that the `Service` is running.
 
     In the terminal using curl:
 
@@ -186,6 +186,6 @@ As you need to create a custom configuration file to install Ambassador Gateway,
 
     Or by way of your browser:
 
-    Open https://localhost/petstore/ in your browser and change the URL in the field at the top of the page to https://localhost/petstore/api/v3/openapi.json (as it is mapped to the /petstore prefix) and click **Explore**.
+    Open https://localhost/petstore/api/v3/openapi.json in your browser and click **Explore**.
 
 4. Navigate to the **Mappings** area in the Ambassador Console to view the corresponding PetStore mapping as configured.

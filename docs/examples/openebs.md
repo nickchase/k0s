@@ -1,7 +1,7 @@
 # OpenEBS
 
 This tutorial covers the installation of OpenEBS as a Helm extension. OpenEBS
-can be installed as a helm chart by adding it as an extension to your
+can be installed as a Helm chart by adding it as an extension to your
 configuration:
 
 ```yaml
@@ -41,11 +41,11 @@ openebs-hostpath   openebs.io/local   Delete          WaitForFirstConsumer   fal
 
 The `openebs-hostpath` is the storage class that maps to `/var/openebs/local`.
 
-The `openebs-device` is not configured and could be configured by [manifest deployer](../manifests.md) accordingly to the [OpenEBS documentation](https://docs.openebs.io/)
+The `openebs-device` is not configured and could be configured by [manifest deployer](../manifests.md) accordingly with the [OpenEBS documentation](https://docs.openebs.io/)
 
 ### Example
 
-Use following manifests as an example of pod with mounted volume:
+Use following manifests as an example of a `Pod` with mounted volume:
 
 ```yaml
 apiVersion: v1
