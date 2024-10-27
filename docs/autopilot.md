@@ -1,14 +1,13 @@
 # Autopilot
 
-A tool for updating your `k0s` controller and worker nodes using specialized plans.
-There is a public update-server hosted on the same domain as the documentation site. See the example below on how to use it. There is only a single channel `edge_release`  available. The channel exposes the latest  released version.
+`k0s` includes a tool for updating your `k0s` controller and worker nodes using specialized plans.
+There is a public update-server hosted on the same domain as the documentation site. See the example below on how to use it. There is only a single channel `edge_release` available. The channel exposes the latest  released version.
 
 ## How it works
 
 * You create a `Plan` YAML
-  * Defining the update payload (new version of `k0s`, URLs for platforms, etc)
-  * Add definitions for all the nodes that should receive the update.
-    * Either statically, or dynamically using label/field selectors
+  * Defining the update payload (new version of `k0s`, URLs for platforms, etc.)
+  * Add definitions for all the nodes that should receive the update, either statically, or dynamically using label/field selectors
 * Apply the `Plan`
   * Applying a `Plan` is a simple `kubectl apply` operation.
 * Monitor the progress
@@ -44,52 +43,50 @@ There are a number of safeguards in place to avoid breaking a cluster.
 
 ### Stateless Component
 
-* The **autopilot** component were designed to not require any heavy state, or
+The Autopilot component was designed to not require any heavy state, or
 massive synchronization. Controllers can disappear, and backup controllers can
-resume the **autopilot** operations.
+resume the Autopilot operations.
 
 ### Workers Update Only After Controllers
 
-* The versioning that Kubelet and the Kubernetes API server adhere to requires that Kubelets
+The versioning that Kubelet and the Kubernetes API server adhere to requires that Kubelets
 should **not** be of a newer version than the API server.
 
-* How **autopilot** handles this is that when a `Plan` is applied that has both controller
-and worker nodes, **all** of the controller nodes will be updated first. It is only when
-**all** controllers have updated **successfully** that worker nodes will receive their
+To solve this problem, when a `Plan` has both controller and worker nodes, Autopilot updates **all** of the controller nodes. It is only when
+all controllers have updated **successfully** that worker nodes will receive their
 update instructions.
 
 ### Plans are Immutable
 
-* When you apply a `Plan`, **autopilot** evaluates all of the controllers and workers that
+When you apply a `Plan`, Autopilot evaluates all of the controllers and workers that
 should be included into the `Plan`, and tracks them in the status. After this point, no
-additional changes to the plan (other than status) will be recognized.
-  * This helps in largely dynamic worker node environments where nodes that may have been
+additional changes to the `Plan` (other than status) will be recognized.
+
+This helps in largely dynamic worker node environments, where nodes that may have been
     matched by the `selector` discovery method no longer exist by the time the update
     is ready to be scheduled.
 
 ### Controller Quorum Safety
 
-* Prior to scheduling a controller update, **autopilot** queries the API server of **all**
-  controllers to ensure that they report a successful `/ready`
-* Only once all controllers are `/ready` will the current controller get sent update signaling.
-* In the event that **any** controller reports a non-ready, the `Plan` transitions into an
-  `InconsistentTargets` state, and the `Plan` execution ends.
+Prior to scheduling a controller update, Autopilot queries the API server of all
+  controllers to ensure that they report a successful `/ready`. Only once all controllers are `/ready` will the current controller get sent update signaling.
+
+In the event that **any** controller reports a non-ready, the `Plan` transitions into an `InconsistentTargets` state, and the `Plan` execution ends.
 
 ### Controllers Update Sequentially
 
-* Despite having the configuration options for controllers to set concurrency, only **one**
-  controller will be updated at a time.
+Despite having the configuration options for controllers to set concurrency, Autopilot will update only one controller.
 
 ### Update Payload Verification
 
-* Each `update` object payload can provide an optional `sha256` hash of the update content
+Each `update` object payload can provide an optional `sha256` hash of the update content
   (specified in `url`), which is compared against the update content after it downloads.
 
 ## Configuration
 
-**Autopilot** relies on a `Plan` object on its instructions on what to update.
+Autopilot relies on a `Plan` object on its instructions on what to update.
 
-Here is an arbitrary **Autopilot** plan:
+Here is an arbitrary Autopilot plan:
 
 ```yaml
 apiVersion: autopilot.k0sproject.io/v1beta2
@@ -129,101 +126,97 @@ spec:
 
 #### `apiVersion <string> (required)`
 
-* The current version of the Autopilot API is `v1beta2`, with a full group-version of `autopilot.k0sproject.io/v1beta2`
+The current version of the Autopilot API is `v1beta2`, with a full group-version of `autopilot.k0sproject.io/v1beta2`
 
 #### `metadata.name <string> (required)`
 
-* The name of the plan should always be `autopilot`
+The name of the plan should always be `autopilot`
   * **Note:** Plans will not execute if they don't follow this convention.
 
 ### Spec Fields
 
 #### `spec.id <string> (optional)`
 
-* An identifier that can be provided by the creator for informational and tracking purposes.
+An identifier that can be provided by the creator for informational and tracking purposes.
 
 #### `spec.timestamp <string> (optional)`
 
-* A timestamp value that can be provided by the creator for informational purposes. **Autopilot**
+A timestamp value that can be provided by the creator for informational purposes. Autopilot
 does nothing with this information.
 
 #### `spec.commands[] (required)`
 
-* The `commands` contains all of the commands that should be performed as a part of the plan.
+The `commands` contains all of the commands that should be performed as a part of the plan.
 
 ### **`k0supdate`** Command
 
 #### `spec.commands[].k0supdate.version <string> (required)`
 
-* The version of the binary being updated. This version is used to compare against the installed
+The version of the binary being updated. This version is used to compare against the installed
 version before and after update to ensure success.
 
 #### `spec.commands[].k0supdate.platforms.*.url <string> (required)`
 
-* An URL providing where the updated binary should be downloaded from, for this specific platform.
+A URL providing where the updated binary should be downloaded from, for this specific platform.
   * The naming of platforms is a combination of `$GOOS` and `$GOARCH`, separated by a hyphen (`-`)
     * eg: `linux-amd64`, `linux-arm64`, `linux-arm`
-  * **Note:** The main supported platform is `linux`. **Autopilot** may work on other platforms, however
+  * **Note:** The main supported platform is `linux`. Autopilot may work on other platforms, however
 this has not been tested.
 
 #### `spec.commands[].k0supdate.platforms.*.sha256 <string> (optional)`
 
-* If a SHA256 hash is provided for the binary, the completed downloaded will be verified against it.
+If a SHA256 hash is provided for the binary, the completed download will be verified against it.
 
 #### `spec.commands[].k0supdate.targets.controllers <object> (optional)`
 
-* This object provides the details of how `controllers` should be updated.
+This object provides the details of how `controllers` should be updated.
 
 #### `spec.commands[].k0supdate.targets.controllers.limits.concurrent <int> (fixed as 1)`
 
-* The configuration allows for specifying the number of concurrent controller updates
+The configuration allows for specifying the number of concurrent controller updates
 through the plan spec, however for controller targets this is fixed always to `1`.
-* By ensuring that only one controller updates at a time, we aim to avoid scenarios
+
+By ensuring that only one controller updates at a time, we aim to avoid scenarios
 where quorom may be disrupted.
 
 #### `spec.commands[].k0supdate.targets.workers <object> (optional)`
 
-* This object provides the details of how `workers` should be updated.
+This object provides the details of how `workers` should be updated.
 
 #### `spec.commands[].k0supdate.targets.workers.limits.concurrent <int> (optional, default = 1)`
 
-* Specifying a `concurrent` value for worker targets will allow for that number of workers
+Specifying a `concurrent` value for worker targets will allow for that number of workers
 to be updated at a time. If no value is provided, `1` is assumed.
 
 ### **`airgapupdate`** Command
 
 #### `spec.commands[].airgapupdate.version <string> (required)`
 
-* The version of the airgap bundle being updated.
+The version of the airgap bundle being updated.
 
 #### `spec.commands[].airgapupdate.platforms.*.url <string> (required)`
 
-* An URL providing where the updated binary should be downloaded from, for this specific platform.
-  * The naming of platforms is a combination of `$GOOS` and `$GOARCH`, separated by a hyphen (`-`)
-    * eg: `linux-amd64`, `linux-arm64`, `linux-arm`
-  * **Note:** The main supported platform is `linux`. **Autopilot** may work on other platforms, however
-this has not been tested.
+A URL specifying the location from which the updated binary should be downloaded for this specific platform.
+  * The naming of platforms is a combination of `$GOOS` and `$GOARCH`, separated by a hyphen (`-`), such as `linux-amd64`, `linux-arm64`, and `linux-arm`
+  * **Note:** The main supported platform is `linux`. Autopilot may work on other platforms, but it has not been tested.
 
 #### `spec.commands[].airgapupdate.platforms.*.sha256 <string> (optional)`
 
-* If a SHA256 hash is provided for the binary, the completed downloaded will be verified against it.
+If a SHA256 hash is provided for the binary, the completed download will be verified against it.
 
 #### `spec.commands[].airgapupdate.workers <object> (optional)`
 
-* This object provides the details of how `workers` should be updated.
+This object provides the details of how `workers` should be updated.
 
 #### `spec.commands[].airgapupdate.workers.limits.concurrent <int> (optional, default = 1)`
 
-* Specifying a `concurrent` value for worker targets will allow for that number of workers
+Specifying a `concurrent` value for worker targets will allow for that number of workers
 to be updated at a time. If no value is provided, `1` is assumed.
 
 ### Static Discovery
 
 This defines the `static` discovery method used for this set of targets (`controllers`, `workers`). The `static` discovery method relies on a fixed set of hostnames defined
-in `.nodes`.
-
-It is expected that a `Node` (workers) or `ControlNode` (controllers) object exists with
-the same name.
+in `.nodes`. For example:
 
 ```yaml
   static:
@@ -233,9 +226,12 @@ the same name.
       - ip-172-31-39-65
 ```
 
+It is expected that for each object in `.nodes`, there is a `Node` (worker) or `ControlNode` (controller) with
+the same name.
+
 #### `spec.commands[].k0supdate.targets.*.discovery.static.nodes[] <string> (required for static)`
 
-* A list of hostnames that should be included in target set (`controllers`, `workers`).
+The list of hostnames that should be included in the target set of `controllers` or `workers`.
 
 ### Selector Target Discovery
 
@@ -258,14 +254,15 @@ Specifying an empty selector will result in *all* nodes being selected for this 
 
 #### `spec.commands[].k0supdate.targets.*.discovery.selector.labels <string> (optional)`
 
-* A collection of name/value labels that should be used for finding the appropriate nodes
+A collection of name/value labels that should be used for finding the appropriate nodes
 for the update of this target set.
 
 #### `spec.commands[].k0supdate.targets.*.discovery.selector.fields <string> (optional)`
 
-* A collection of name/value fields that should be used for finding the appropriate nodes
+A collection of name/value fields that should be used for finding the appropriate nodes
 for the update of this target set.
-  * **Note:** Currently only the field `metadata.name` is available as a query field.
+
+**Note:** Currently only the field `metadata.name` is available as a query field.
 
 ## Status Reporting
 
@@ -308,7 +305,7 @@ An example of a `Plan` status:
 
 To read this status, this indicates that:
 
-* The overall status of the update is `SchedulableWait`, meaning that **autopilot** is
+* The overall status of the update is `SchedulableWait`, meaning that Autopilot is
   waiting for the next opportunity to process a command.
 * There are three controller nodes
   * Two controllers have `SignalCompleted` successfully
@@ -318,7 +315,7 @@ To read this status, this indicates that:
 
 ### Plan Status
 
-The `Plan` status at `.status.status` represents the overall status of the **autopilot**
+The `Plan` status at `.status.status` represents the overall status of the Autopilot
 update operation. There are a number of statuses available:
 
 | Status | Description | Ends Plan? |
@@ -338,7 +335,7 @@ Similar to the **Plan Status**, the individual nodes can have their own statuses
 | ------ | ----------- |
 | `SignalPending` | The node is available and awaiting an update signal |
 | `SignalSent` | Update signaling has been successfully applied to this node. |
-| `MissingPlatform` | This node is a platform that an update has not been provided for. |
+| `MissingPlatform` | This node is a platform for which an update has not been provided. |
 | `MissingSignalNode` | This node does have an associated `Node` (worker) or `ControlNode` (controller) object. |
 
 ## UpdateConfig
@@ -347,29 +344,29 @@ Similar to the **Plan Status**, the individual nodes can have their own statuses
 
 #### `apiVersion <string> (required field)`
 
-* API version. The current version of the Autopilot API is `v1beta2`, with a full group-version of `autopilot.k0sproject.io/v1beta2`
+API version fo the Autopilot API. The current version of the Autopilot API is `v1beta2`, with a full group-version of `autopilot.k0sproject.io/v1beta2`
 
 #### `metadata.name <string> (required field)`
 
-* Name of the config.
+Name of the config.
 
 ### Spec
 
 #### `spec.channel <string> (optional)`
 
-* Update channel to use. Supported values: `stable`(default), `unstable`.
+Update channel to use. Supported values are `stable`(default), and `unstable`.
 
 #### `spec.updateServer <string> (optional)`
 
-* Update server url. Defaults to `https://updates.k0sproject.io`
+Update server url. Defaults to `https://updates.k0sproject.io`
 
 #### `spec.upgradeStrategy.type <enum:cron|periodic>`
 
-* Select which update strategy to use.
+Select which update strategy to use.
 
 #### `spec.upgradeStrategy.cron <string> (optional)` **DEPRECATED**
 
-* Schedule to check for updates in crontab format.
+Schedule on which to check for updates in crontab format.
 
 #### `spec.upgradeStrategy.cron <object>`
 
@@ -383,7 +380,7 @@ Fields:
 
 * Describes the behavior of the autopilot generated `Plan`
 
-### Example
+### Example Plan
 
 ```yaml
 apiVersion: autopilot.k0sproject.io/v1beta2
@@ -439,7 +436,7 @@ No additional action is needed.
 
 ### Q: How will `ControlNode` instances get removed?
 
-A: `ControlNode` instances are created by **autopilot** controllers as they startup. When
+A: `ControlNode` instances are created by Autopilot controllers at  startup. When
 controllers disappear, they will **not** remove their associated `ControlNode` instance. It
 is the responsibility of the operator/administrator to ensure their maintenance.
 
@@ -450,5 +447,4 @@ available on the API server.
 
 https://kubernetes.io/releases/version-skew-policy/
 
-> Make sure that your controllers are at the desired version **first** before
-> upgrading workers.
+Make sure that your controllers are at the desired version **first**, before upgrading workers.

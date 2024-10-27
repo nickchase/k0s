@@ -1,55 +1,52 @@
-# **Multi-Command Plans**
+# Multi-Command Plans
 
-**Autopilot** relies on a **Plan** for defining the **Commands** that should be
-executed, the **Signal Nodes** that each should be run on, and the status of
-each **Command**.
+Autopilot relies on a `Plan` for defining the `Command`s that should be
+executed, the Signal Nodes that each should be run on, and the status of
+each `Command`.
 
-A **Plan**:
+A Plan:
 
-* Defines one or many **Commands** that specify what actions should be performed.
-* Specifies how **Signal Nodes** should be discovered per-**Command**.
-* Saves the status of the **Plan** execution by resolved **Signal Nodes**
+* Defines one or many `Command`s that specify what actions should be performed.
+* Specifies how Signal Nodes should be discovered per-`Command`.
+* Saves the status of the Plan execution by resolved Signal Nodes
 
-A **Command**:
+A Command:
 
-* An instructional step inside of a **Plan** that is applied against a **Signal Node**
+An instructional step inside of a Plan that is applied against a Signal Node.
 
-A **Signal Node**:
+A Signal Node:
 
-* Any node (controller or worker) that can receive updates with Autopilot.
+Any node (controller or worker) that can receive updates with Autopilot.
 
-## **Execution**
+## Execution
 
-The execution of a **Plan** is the result of processing **Commands** through
-a number of **Processing States**.
+The execution of a `Plan` is the result of processing `Command`s through
+a number of Processing States.
 
-When a **Plan** is executed, each of the **Commands** are executed in the order
-of their appearance in the **Plan**.
+When a `Plan` is executed, each of the `Command`s are executed in the order
+of their appearance in the `Plan`.
 
-* A **Plan** transitions to the next **Command** only when the current **Command** posts
-a state of **Completed**.
-* Any **Command** that posts one of the recognized **Error States** will result in the
-current **Command** and **Plan** to abort processing.
-  * The status of the **Command** and **Plan** will reflect this.
-* A **Plan** is considered finished only when all of its defined **Commands** post a
-**Completed** state.
+A `Plan` transitions to the next `Command` only when the current `Command` posts
+a state of `Completed`. Any `Command` that posts one of the recognized Error States will result in the
+current `Command` and `Plan` to abort processing, and the status of the `Command` and Plan will reflect this state.
 
-## **Status**
+A `Plan` is considered finished only when all of its defined `Command`s post a
+`Completed` state.
 
-The progress and state of each **Command** is recorded in the **Plan** status.
+## Status
 
-* Every **Command** in the **Plan** has an associated status entry with the same index
-as the **Command**
-  * ie. The second **Command** in a **Plan** has an index of `1`, and so does its status.
-* The status of all **Commands** is taken into consideration when determining if the
-**Plan** is finished.
+The progress and state of each `Command` is recorded in the Plan status.
+
+Every `Command` in the `Plan` has an associated status entry with the same index
+as the `Command` For example, the second `Command` in a `Plan` has an index of `1`, and so does its status. The status of all `Command`s is taken into consideration when determining whether the
+`Plan` is finished.
 
 ---
 
-## **Example**
+## Example
 
-The following is an example of a **Plan** that has been applied as is currently being
-processed by **autopilot**.
+The following is an example of a `Plan` that has been applied and is currently being
+processed by autopilot.
 
 (line numbers added for commentary below)
 
@@ -112,16 +109,16 @@ processed by **autopilot**.
 56:    state: SchedulableWait
 ```
 
-* Lines **7-33** are the two **Commands** that make up this plan -- an `airgapupdate` and `k0supdate`.
-* Lines **38-55** are the associated status entries for the two **Commands**.
+* Lines 7-33 are the two `Command`s that make up this `Plan` -- an `airgapupdate` and `k0supdate`.
+* Lines 38-55 are the associated status entries for the two `Command`s.
 
-The state of this **Plan** exerpt is that **autopilot** has successfully processed the **Plan**, and
-has begun processing the `airgapupdate` **Command**. Its status indicates **SignalSent** which means
-that the **Signal Node** has been sent signaling information to perform an airgap update.
+The state of this `Plan` excerpt is that autopilot has successfully processed the `Plan`, and
+has begun processing the `airgapupdate` `Command`. Its status indicates `SignalSent` which means
+that the Signal Node has been sent signaling information to perform an airgap update.
 
 ---
 
-## **Processing States**
+## Processing States
 
 The following are the various states that both `Plan`s and `Command`s
 adhere to.
@@ -130,64 +127,64 @@ adhere to.
 stateDiagram-v2
     [*]-->NewPlan
     NewPlan-->SchedulableWait
-    NewPlan-->Errors***
+    NewPlan-->Errors*
     
     SchedulableWait-->Schedulable
     SchedulableWait-->Completed
     Schedulable-->SchedulableWait
 
-    Errors***-->[*]
+    Errors*-->[*]
     Completed-->[*]
 ```
 
-Note that the **Errors*** state is elaborated in detail below in **Error States**.
+Note that the `Errors*` state is elaborated in detail below in Error States.
 
-### **NewPlan**
+### NewPlan
 
-When a **Plan** is created with the name `autopilot`, the **NewPlan** state
+When a `Plan` is created with the name `autopilot`, the `NewPlan` state
 processing takes effect.
 
-It is the responsibility of **NewPlan** to ensure that the status of **all**
-the **Commands** are represented in the **Plan** status. This **Plan** status
-is needed at later points in **Plan** processing to determine if the entire
-**Plan** is completed.
+It is the responsibility of `NewPlan` to ensure that the status of all
+the `Command`s are represented in the `Plan` status. This `Plan` status
+is needed at later points in `Plan` processing to determine if the entire
+`Plan` is completed.
 
-The main difference between **NewPlan** and all the other states is that
-**NewPlan** will iterate over all commands; the other states deal with the
-active command.
+The main difference between `NewPlan` and all the other states is that
+`NewPlan` will iterate over all `Command`s; the other states deal with the
+active `Command`.
 
-### **SchedulableWait**
+### SchedulableWait
 
-Used to evaluate a **Command** to determine if it can be scheduled for processing.
-If the **Command** is determined that it can be processed, the state is set to
-**Schedulable**.
+Used to evaluate a `Command` to determine if it can be scheduled for processing.
+If the `Command` is determined that it can be processed, the state is set to
+Schedulable.
 
-### **Schedulable**
+### Schedulable
 
-The **Schedulable** state is set by **SchedulableWait** to indicate that this
-command should execute. The execution of a **Command** in this state will be
-whichever logic is defined by the **Command**.
+The `Schedulable` state is set by SchedulableWait to indicate that this
+`Command` should execute. The execution of a `Command` in this state will be
+whichever logic is defined by the `Command`.
 
-The ending of this state should either transition to **SchedulableWait** for
-further processing + completion detection, or transition to an error.
+The ending of this state should either transition to `SchedulableWait` for
+further processing and completion detection, or transition to an error.
 
-### **Completed**
+### Completed
 
-The **Completed** state indicates that the command has finished processing.
-Once a plan/command are in the **Completed** state, no further processing
-will occur on this plan/command.
+The `Completed` state indicates that the `Command` has finished processing.
+Once a `Plan`/`Command` are in the `Completed` state, no further processing
+will occur on this `Plan`/`Command`.
 
 ---
 
-## **Error States**
+## Error States
 
-When a plan or command processing goes into one of the designated error
-states, this is considered fatal and the plan/command processing will
+When a `Plan` or `Command` processing goes into one of the designated error
+states, this is considered fatal and the `Plan`/`Command` processing will
 terminate.
 
-Error states are generally defined by the **Command** implementation.
-The core **autopilot** functionality is only interested when in the
-4 core states (**NewPlan**, **SchedulableWait**, **Schedulable**, **Completed**),
+Error states are generally defined by the `Command` implementation.
+The core autopilot functionality is only interested when in the
+4 core states (`NewPlan`, `SchedulableWait`, `Schedulable`, `Completed`),
 and treats all other states as an error.
 
 ```mermaid
@@ -201,14 +198,14 @@ flowchart TD
 
 | Error State | Command | States | Description |
 |-------------|---------|--------|-------------|
-| **InconsistentTargets** | `k0supdate` | **Schedulable** | Indicates that a **Signal Node** probe has failed for any node that was previously discovered during **NewPlan**. |
-| **IncompleteTargets** | `airgapupdate`, `k0supdate` | **NewPlan**, **Schedulable** | Indicates that a **Signal Node** that existed during the discover phase in **NewPlan** no longer exists (ie. no `ControlNode` or `Node` object) |
-| **Restricted** | `airgapupdate`, `k0supdate` | **NewPlan** | Indicates that a **Plan** has requested an update of a **Signal Node** type that contradicts the startup exclusions (the `--exclude-from-plans` argument) |
-| **MissingSignalNode** | `airgapupdate`, `k0supdate` | **Schedulable** | Indicates that a **Signal Node** that existed during the discover phase in **NewPlan** no longer exists (ie. no matching `ControlNode` or `Node` object) |
+| `InconsistentTargets` | `k0supdate` | `Schedulable` | Indicates that a Signal Node probe has failed for any node that was previously discovered during `NewPlan`. |
+| `IncompleteTargets` | `airgapupdate`, `k0supdate` | `NewPlan`, `Schedulable` | Indicates that a Signal Node that existed during the discover phase in `NewPlan` no longer exists (for example, a `ControlNode` or `Node` object) |
+| `Restricted` | `airgapupdate`, `k0supdate` | `NewPlan` | Indicates that a `Plan` has requested an update of a Signal Node type that contradicts the startup exclusions (the `--exclude-from-plans` argument) |
+| `MissingSignalNode` | `airgapupdate`, `k0supdate` | `Schedulable` | Indicates that a Signal Node that existed during the discover phase in `NewPlan` no longer exists (for example, no matching `ControlNode` or `Node` object) |
 
 ---
 
-## **Sequence: Example**
+## Sequence: Example
 
 Using the example above as a reference, this outlines the basic sequence of events of
 state transitions to the operations performed on each object.
