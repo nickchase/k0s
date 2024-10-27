@@ -5,7 +5,7 @@ This guide assumes you have already cloned the upstream repo to your system via 
 ## Fork The Project
 
 1. Go to http://github.com/k0sproject/k0s
-2. On the top, right-hand side, click on "fork" and select your username for the fork destination.
+2. On the top, right-hand side of the page, click "Fork" and select your username for the fork destination.
 
 ## Adding the Forked Remote
 
@@ -136,7 +136,7 @@ To do that, it's best to perform an [interactive rebase](https://git-scm.com/boo
 
 #### Example
 
-Rebase your feature branch against upstream main branch:
+Rebase your feature branch against the upstream main branch:
 
 ```shell
 git rebase -i origin/main

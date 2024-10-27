@@ -1,6 +1,6 @@
 # Testing Your Code
 
-k0s uses github actions to run automated tests on any PR, before merging.
+k0s uses Github actions to run automated tests on any PR before merging.
 However, a PR will not be reviewed before all tests are green, so to save time and prevent your PR from going stale, it is best to test it before submitting the PR.
 
 ## Run Local Verifications
@@ -34,14 +34,14 @@ Please run the following style and formatting commands and fix/check-in any chan
 
    In the repository root directory, make sure that:
 
-   * `make build && git diff --exit-code` runs successfully.  
+   * `make build && git diff --exit-code` runs successfully.
      Verifies that the build is working and that the generated source code
      matches the one that's checked into source control.
-   * `make check-unit` runs successfully.  
+   * `make check-unit` runs successfully.
      Verifies that all the unit tests pass.
-   * `make check-basic` runs successfully.  
+   * `make check-basic` runs successfully.
      Verifies basic cluster functionality using one controller and two workers.
-   * `make check-hacontrolplane` runs successfully.  
+   * `make check-hacontrolplane` runs successfully.
      Verifies that joining of controllers works.
 
    Please note that this last test is prone to "flakiness", so it might fail on

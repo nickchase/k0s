@@ -38,7 +38,7 @@ By contributing, you agree that your contributions will be licensed as followed:
 
 Some of you might have noticed we have official community blog hosted on
 [Medium][k0s@medium]. If you are not yet following us, we'd like to invite you
-to do so now! Make sure to [follow us on X][@k0sproject] as well 😊
+to do so now! Make sure to [follow us on X][@k0sproject] as well 😊.
 
 We have also decided to participate in the [Lens Forums]. As part of our ongoing
 collaboration with the [Lens IDE] team, who are not only close friends of the
