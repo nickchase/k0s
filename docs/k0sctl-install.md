@@ -20,7 +20,7 @@ You can execute k0sctl on any system that meets the [k0s System Requirements](sy
 
 ### 1. Install k0sctl tool
 
-You can download k0sctl as a single binary from the [k0sctl github repository](https://github.com/k0sproject/k0sctl#installation).
+You can download k0sctl as a single binary from the [k0sctl github repository](https://github.com/k0sproject/k0sctl#installation). Make the binary executable and make sure it's on your path.
 
 ### 2. Configure the cluster
 
