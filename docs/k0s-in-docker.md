@@ -67,7 +67,7 @@ Alternatively, you can grab the kubeconfig file with `docker exec k0s cat /var/l
 
 ## Use Docker Compose (alternative)
 
-If you are running Infrastructure as Code, as an alternative you can run k0s using Docker Compose:
+If you are running Infrastructure as Code, as an alternative you can run k0s using Docker Compose. Add the following to your `compose.yaml` file:
 
 ```yaml
 version: "3.9"
