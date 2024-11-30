@@ -14,7 +14,7 @@ Let's look at how it works.
 
 ## Prerequisites
 
-You can execute k0sctl on any system that meets the [k0s System Requirements](system-requirements.md) and the Go language. 
+You can execute k0sctl on any system that meets the [k0s System Requirements](system-requirements.md) and has the Go language installed. 
 
 ## Install k0s
 
@@ -51,9 +51,13 @@ You can download k0sctl as a single binary from the [k0sctl github repository](h
           keyPath: ~/.ssh/id_rsa
     ```
 
-2. Add `controller` and `worker` entries for each node in the cluster, making sure to provide each host with a valid IP address that is reachable by k0sctl, as well as the connection details for an SSH connection.
+2. Add `controller` and `worker` entries for each node in the cluster, making sure to provide each host with a valid IP address that is reachable by k0sctl, as well as the connection details for an SSH connection. In this case, that means you have the private key(s) available on the same machine as `k0sctl` and the public key(s) are added to `authorized_keys` on the target servers.
 
- **Note**: Refer to the [k0sctl documentation](https://github.com/k0sproject/k0sctl#configuration-file-spec-fields) for k0sctl configuration specifications.
+   You can also add additional entries as needed, as shown in the list of [`k0sctl` configuration entries](https://github.com/k0sproject/k0sctl?tab=readme-ov-file#configuration-file). For example, when installing on Amazon Web Services, the discovery process can sometimes find an inaccessible internal IP address.  You can override this address using the `privateAddress` parameter, as in:
+
+      - role: worker
+        os: debian
+        privateAddress: 10.0.0.2
 
 ### 3. Deploy the cluster
 
