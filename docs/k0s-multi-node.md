@@ -16,7 +16,7 @@ You can also speed up the use of the `k0s` command by enabling [shell completion
 
 ### 1. Download k0s to a controller node
 
-Run the k0s download script to download the latest stable version of k0s and make it executable from `/usr/bin/k0s`.
+On both the controller and worker hosts, run the k0s download script to download the latest stable version of k0s and make it executable from `/usr/bin/k0s`.
 
 ```shell
 curl --proto '=https' --tlsv1.2 -sSf https://get.k0s.sh | sudo sh
@@ -37,7 +37,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://get.k0s.sh | sudo K0S_VERSION=v{{{ 
 
 ### 2. Bootstrap a controller node
 
-Create a configuration file:
+Create a configuration file by executing the following commands as root:
 
 ```shell
 mkdir -p /etc/k0s
@@ -48,9 +48,6 @@ For information on settings modification, refer to the [configuration](configura
 
 ```shell
 sudo k0s install controller -c /etc/k0s/k0s.yaml
-```
-
-```shell
 sudo k0s start
 ```
 
@@ -97,9 +94,10 @@ The bearer token embedded in the kubeconfig is a [bootstrap token](https://kuber
 ### 5. Add controllers to the cluster
 
 Before you add additional controllers, keep the following in mind:
-* You must use either etcd or an external data store (MySQL or Postgres) via [kine](kine-data-store.md). 
-* Controllers must meet the requirements noted in the [high availability configuration](high-availability.md). 
-* The configuration must be identical for all controller nodes.
+
+- You must use either etcd or an external data store (MySQL or Postgres) via [kine](kine-data-store.md). 
+- Controllers must meet the requirements noted in the [high availability configuration](high-availability.md). 
+- The configuration must be identical for all controller nodes.
 
 To add a new cluster, you'll first need a new controller join token:
 
