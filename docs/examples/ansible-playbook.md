@@ -27,7 +27,7 @@ cd k0s-ansible
 
 ### 2. Create virtual machines
 
-**Note**: We're using multipass as the VM manager in this example, but there's no interdependence; you can create the VMs in any way necessary.
+**Note**: We're using multipass as the VM manager in this example, but there's no interdependence; you can create the VMs in any way necessary. If you are going to use this script (and thus multipass), however, make sure it's installed before proceeding. You can get instructions at [https://github.com/canonical/multipass](https://github.com/canonical/multipass).
 
 Create a the virtual machines that will represent the nodes in your Kubernetes cluster. For the automation to work, each instance must have passwordless SSH access. To achieve this, provision each instance with a cloud-init manifest that imports your current users' public SSH key and into a user `k0s` (refer to the bash script below).
 
@@ -67,76 +67,78 @@ k0s-7 Running 192.168.64.61 Ubuntu 20.04 LTS
 
 1. Copy the sample to create the inventory directory:
 
-```shell
-cp -rfp inventory/sample inventory/multipass
-```
+   ```shell
+   cp -rfp inventory/sample inventory/multipass
+   ```
 
 2. Create the inventory.
 
-Assign the virtual machines to the different host groups, as required by the playbook logic.
+   Assign the virtual machines to the different host groups, as required by the playbook logic.
 
-| Host group            | Detail                                    |
-|:----------------------|:------------------------------------------|
-| `initial_controller`  | Must contain a single node that creates the worker and controller tokens needed by the other nodes|
-| `controller`          | Can contain nodes that, together with the host from `initial_controller`, form a highly available isolated control plane |
-| `worker`              | Must contain at least one node, to allow for the deployment of Kubernetes objects |
+   | Host group            | Detail                                    |
+   |:----------------------|:------------------------------------------|
+   | `initial_controller`  | Must contain a single node that creates the worker and controller tokens needed by the other nodes|
+   | `controller`          | Can contain nodes that, together with the host from `initial_controller`, form a highly available isolated control plane |
+   | `worker`              | Must contain at least one node, to allow for the deployment of Kubernetes objects |
 
 3. Fill in `inventory/multipass/inventory.yml`. You can do this via direct entry using the metadata provided by `multipass list`, or you can use the Python script `multipass_generate_inventory.py`:
 
-```shell
-./tools/multipass_generate_inventory.py
-```
+   ```shell
+   ./tools/multipass_generate_inventory.py
+   Designated first three instances as control plane
+   Created Ansible Inventory at: /Users/dev/k0s-ansible/tools/inventory.yml
+   ```
+   
+   Copy the generated file to the `inventory/multipass` directory.
+   
+   ```
+   $ cp tools/inventory.yml inventory/multipass/inventory.yml
+   ```
 
-```shell
-Designate first three instances as control plane
-Created Ansible Inventory at: /Users/dev/k0s-ansible/tools/inventory.yml
-$ cp tools/inventory.yml inventory/multipass/inventory.yml
-```
+   Your `inventory/multipass/inventory.yml` should resemble the example below:
 
-Your `inventory/multipass/inventory.yml` should resemble the example below:
-
-```yaml
----
-all:
-  children:
-    initial_controller:
-      hosts:
-        k0s-1:
-    controller:
-      hosts:
-        k0s-2:
-        k0s-3:
-    worker:
-      hosts:
-        k0s-4:
-        k0s-5:
-        k0s-6:
-        k0s-7:
-  hosts:
-    k0s-1:
-      ansible_host: 192.168.64.32
-    k0s-2:
-      ansible_host: 192.168.64.33
-    k0s-3:
-      ansible_host: 192.168.64.56
-    k0s-4:
-      ansible_host: 192.168.64.57
-    k0s-5:
-      ansible_host: 192.168.64.58
-    k0s-6:
-      ansible_host: 192.168.64.60
-    k0s-7:
-      ansible_host: 192.168.64.61
-  vars:
-    ansible_user: k0s
-```
+   ```yaml
+   ---
+   all:
+     children:
+       initial_controller:
+         hosts:
+           k0s-1:
+       controller:
+         hosts:
+           k0s-2:
+           k0s-3:
+       worker:
+         hosts:
+           k0s-4:
+           k0s-5:
+           k0s-6:
+           k0s-7:
+     hosts:
+       k0s-1:
+         ansible_host: 192.168.64.32
+       k0s-2:
+         ansible_host: 192.168.64.33
+       k0s-3:
+         ansible_host: 192.168.64.56
+       k0s-4:
+         ansible_host: 192.168.64.57
+       k0s-5:
+         ansible_host: 192.168.64.58
+       k0s-6:
+         ansible_host: 192.168.64.60
+       k0s-7:
+         ansible_host: 192.168.64.61
+     vars:
+       ansible_user: k0s
+   ```
 
 ### 4. Test the virtual machine connections
 
 Run the following command to test the connection to your hosts:
 
 ```shell
-ansible -i inventory/multipass/inventory.yml -m ping
+ansible k0s-4 -i inventory/multipass/inventory.yml -m ping
 ```
 
 ```shell
